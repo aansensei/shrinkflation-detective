@@ -1,6 +1,6 @@
 # The Shrinkflation Detective
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue.svg) ![Database](https://img.shields.io/badge/Database-PostgreSQL-informational.svg) ![Status](https://img.shields.io/badge/Status-Phase_1_In_Progress-yellow.svg) ![Data](https://img.shields.io/badge/Data-Kroger_API_+_FRED-green.svg)
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg) ![Database](https://img.shields.io/badge/Database-PostgreSQL-informational.svg) ![Status](https://img.shields.io/badge/Status-Phase_2_In_Progress-yellow.svg) ![Data](https://img.shields.io/badge/Data-Kroger_API_+_FRED-green.svg)
 
 **[Read in English](#english-version) | [Đọc bằng Tiếng Việt](#vietnamese-version)**
 
@@ -72,8 +72,8 @@ Products in categories where consumers have a strong price reference, such as br
 
 | Phase | Timeline | Description | Status |
 |-------|----------|-------------|--------|
-| 1. Foundation | Week 1-2 | Database schema, Kroger API setup, first crawl batch | In Progress |
-| 2. ETL Core | Week 3-4 | Regex unit normalization pipeline, weekly automation | Pending |
+| 1. Foundation | Week 1-2 | Database schema, Kroger API setup, first crawl batch | Complete |
+| 2. ETL Core | Week 3-4 | Regex unit normalization pipeline, weekly automation | In Progress |
 | 3. Analytics | Week 5-6 | Shrinkflation Index v1, detection algorithm | Pending |
 | 4. Macro Layer | Week 7-8 | FRED integration, hypothesis testing | Pending |
 | 5. Deploy | Week 9-10 | Streamlit dashboard live, case study writeup | Pending |
@@ -157,8 +157,8 @@ Các sản phẩm trong danh mục mà người tiêu dùng có giá tham chiế
 
 | Giai đoạn | Thời gian | Mô tả | Trạng thái |
 |-----------|-----------|-------|------------|
-| 1. Nền tảng | Tuần 1-2 | Schema cơ sở dữ liệu, kết nối Kroger API, crawl batch đầu tiên | Đang thực hiện |
-| 2. ETL Core | Tuần 3-4 | Pipeline chuẩn hóa đơn vị, tự động hóa hàng tuần | Chưa bắt đầu |
+| 1. Nền tảng | Tuần 1-2 | Schema cơ sở dữ liệu, kết nối Kroger API, crawl batch đầu tiên | Hoàn thành |
+| 2. ETL Core | Tuần 3-4 | Pipeline chuẩn hóa đơn vị, tự động hóa hàng tuần | Đang thực hiện |
 | 3. Phân tích | Tuần 5-6 | Chỉ số Shrinkflation v1, thuật toán phát hiện | Chưa bắt đầu |
 | 4. Vĩ mô | Tuần 7-8 | Tích hợp FRED, kiểm định giả thuyết | Chưa bắt đầu |
 | 5. Deploy | Tuần 9-10 | Dashboard Streamlit live, viết case study | Chưa bắt đầu |
