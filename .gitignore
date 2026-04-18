@@ -3,6 +3,5 @@ venv/.ipynb_checkpoints/
 __pycache__/
 *.pyc
 *.pyo
-raw_data/*.json
 logs/*.log
 .DS_Store
