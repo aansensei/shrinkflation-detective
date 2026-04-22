@@ -11,6 +11,7 @@
 # That way if something breaks in the insert logic, I don't have to re-hit the API.
 # Learned this lesson the hard way on the last project.
 
+
 import requests
 import os
 import json
@@ -20,7 +21,7 @@ from sqlalchemy import create_engine, text
 from tqdm import tqdm
 from unit_normalizer import run_normalization
 
-load_dotenv()
+load_dotenv()  # At least this time I remembered to create an env file:)) Amen
 
 
 TOKEN_URL = "https://api.kroger.com/v1/connect/oauth2/token"
@@ -84,7 +85,7 @@ def fetch_category(token, category):
         batch = response.json().get("data", [])
         all_products.extend(batch)
 
-        print(f"  [{category}] page {page + 1} -> {len(batch)} products")
+        tqdm.write(f"  [{category}] page {page + 1} -> {len(batch)} products")
 
         if len(batch) < PAGE_SIZE:
             break  # last page, nothing more to fetch
@@ -94,13 +95,14 @@ def fetch_category(token, category):
 
 def save_raw(category, products):
     # filename includes date so we can trace which crawl produced which file
-    os.makedirs("raw_data", exist_ok=True)
-    filename = f"raw_data/{category.replace(' ', '_')}_{date.today()}.json"
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.makedirs(os.path.join(root, "raw_data"), exist_ok=True)
+    filename = os.path.join(root, "raw_data", f"{category.replace(' ', '_')}_{date.today()}.json")
 
     with open(filename, "w") as f:
         json.dump(products, f, indent=2)
 
-    print(f"  Saved {len(products)} raw records -> {filename}")
+    tqdm.write(f"  Saved {len(products)} raw records -> {filename}")
 
 
 def insert_products(engine, products, category):
