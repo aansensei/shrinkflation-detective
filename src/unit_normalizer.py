@@ -20,13 +20,14 @@ UNIT_TO_GRAMS = {
 }
 
 UNIT_TO_ML = {
-    "fl oz": 29.5735,
-    "ml":    1.0,
-    "l":     1000.0,
-    "liter": 1000.0,
-    "qt":    946.353,
-    "gal":   3785.41,
-    "pt":    473.176,
+    "fl oz":  29.5735,
+    "fl. oz": 29.5735,  # some products write it with a period
+    "ml":     1.0,
+    "l":      1000.0,
+    "liter":  1000.0,
+    "qt":     946.353,
+    "gal":    3785.41,
+    "pt":     473.176,
 }
 
 # turns out a ton of products don't have weight at all -- they're sold by count
@@ -34,12 +35,16 @@ UNIT_TO_ML = {
 # we can't convert "16 ct" to grams but we CAN still catch shrinkflation
 # if next week the same product is "12 ct" at the same price, that's a red flag
 UNIT_TO_COUNT = {
-    "ct":    1.0,
-    "count": 1.0,
-    "rolls": 1.0,
-    "roll":  1.0,
-    "pk":    1.0,
-    "pack":  1.0,
+    "ct":     1.0,
+    "count":  1.0,
+    "rolls":  1.0,
+    "roll":   1.0,
+    "rl":     1.0,  # short for rolls
+    "pk":     1.0,
+    "pack":   1.0,
+    "wipes":  1.0,
+    "sheets": 1.0,
+    "quart":  1.0,  # rare but shows up as a count label
 }
 
 
