@@ -17,14 +17,16 @@ import json
 from datetime import date
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+from tqdm import tqdm
+from unit_normalizer import run_normalization
 
 load_dotenv()
 
 
-TOKEN_URL    = "https://api.kroger.com/v1/connect/oauth2/token"
+TOKEN_URL = "https://api.kroger.com/v1/connect/oauth2/token"
 PRODUCTS_URL = "https://api.kroger.com/v1/products"
-PAGE_SIZE    = 50   # hard limit per Kroger API request
-MAX_PAGES    = 5    # so max 250 products per category
+PAGE_SIZE = 50   # hard limit per Kroger API request
+MAX_PAGES = 5    # so max 250 products per category
 
 # these 5 categories are the most relevant for shrinkflation --
 # everyday staples where people actually remember what things cost
@@ -47,7 +49,8 @@ def get_token():
             "grant_type": "client_credentials",
             "scope": "product.compact",
         },
-        auth=(os.getenv("KROGER_CLIENT_ID"), os.getenv("KROGER_CLIENT_SECRET")),
+        auth=(os.getenv("KROGER_CLIENT_ID"),
+              os.getenv("KROGER_CLIENT_SECRET")),
     )
     response.raise_for_status()
     print("Token acquired.\n")
@@ -59,7 +62,7 @@ def fetch_category(token, category):
     # pagination is 1-indexed so page 0 starts at 1, page 1 starts at 51, etc.
     # if we get a 401 mid-crawl it means the 30-min token expired,
     # so we return a flag and let main() refresh it before retrying
-    headers      = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"Bearer {token}"}
     all_products = []
     token_expired = False
 
@@ -110,15 +113,15 @@ def insert_products(engine, products, category):
     #
     # weight_raw stays as-is for now -- the normalization (oz -> grams etc.)
     # is Phase 2's job. For now we just want everything in the database.
-    today               = date.today()
-    new_products_count  = 0
+    today = date.today()
+    new_products_count = 0
     new_snapshots_count = 0
 
     with engine.begin() as conn:
         for product in products:
             kroger_id = product.get("productId")
-            name      = product.get("description", "").strip()
-            brand     = product.get("brand", "").strip()
+            name = product.get("description", "").strip()
+            brand = product.get("brand", "").strip()
 
             if not kroger_id or not name:
                 continue
@@ -136,7 +139,7 @@ def insert_products(engine, products, category):
                 new_products_count += 1
             else:
                 # product already exists from a previous crawl, just grab its id
-                row        = conn.execute(
+                row = conn.execute(
                     text("SELECT id FROM products WHERE kroger_id = :kid"),
                     {"kid": kroger_id}
                 ).fetchone()
@@ -144,7 +147,7 @@ def insert_products(engine, products, category):
 
             # one product can have multiple size variants, snapshot all of them
             for item in product.get("items", []):
-                price      = item.get("price", {}).get("regular")
+                price = item.get("price", {}).get("regular")
                 weight_raw = item.get("size")
 
                 conn.execute(text("""
@@ -167,29 +170,34 @@ def main():
     print(f"Shrinkflation Detective -- Crawler v1")
     print(f"Crawl date: {date.today()}\n")
 
-    token  = get_token()
+    token = get_token()
     engine = create_engine(os.getenv("NEON_DB_URL"))
 
-    total_products  = 0
+    total_products = 0
     total_snapshots = 0
 
-    for category in CATEGORIES:
-        print(f"Crawling: {category}")
+    for category in tqdm(CATEGORIES, desc="Crawling categories", unit="category"):
+        tqdm.write(f"\nCrawling: {category}")
         products, token_expired = fetch_category(token, category)
 
         if token_expired:
-            token       = get_token()
+            token = get_token()
             products, _ = fetch_category(token, category)
 
         save_raw(category, products)
 
-        new_p, new_s     = insert_products(engine, products, category)
-        total_products  += new_p
+        new_p, new_s = insert_products(engine, products, category)
+        total_products += new_p
         total_snapshots += new_s
 
-        print(f"  -> {new_p} new products | {new_s} snapshots inserted\n")
+        tqdm.write(f"  -> {new_p} new products | {new_s} snapshots inserted")
 
-    print(f"Done. {total_products} new products, {total_snapshots} snapshots total.")
+    print(
+        f"Done. {total_products} new products, {total_snapshots} snapshots total.\n")
+
+    # run normalization right after crawl so new snapshots are always ready for analysis
+    print("Running unit normalization on new snapshots...")
+    run_normalization(engine)
 
 
 if __name__ == "__main__":

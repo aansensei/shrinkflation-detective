@@ -1,0 +1,28 @@
+name: Weekly Kroger Crawl
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # every Monday at 6am UTC
+  workflow_dispatch:      # allow manual trigger from GitHub UI
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run crawler
+        env:
+          KROGER_CLIENT_ID:     ${{ secrets.KROGER_CLIENT_ID }}
+          KROGER_CLIENT_SECRET: ${{ secrets.KROGER_CLIENT_SECRET }}
+          NEON_DB_URL:          ${{ secrets.NEON_DB_URL }}
+        run: python src/kroger_crawler.py
